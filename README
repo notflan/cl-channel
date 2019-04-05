@@ -1,0 +1,15 @@
+Go-like channels for atomically passing information between threads.
+
+(make-channel) ; make new channel
+(make-channel 2) ; make new channel with max size of 2 (untested)
+
+(-> chan item) ; send item to channel
+(<- chan) ; receive from channel (values item is-not-closed)
+(release chan) ; close channel
+(closed chan) ; is channel closed
+
+
+(make-dispatcher) ; make dispatcher
+(hook disp name lambda) ; add hook
+(sig name (optional value)) ; signal name in parallel
+(sig-serial name (optional value)) ; signal name in serial
