@@ -10,4 +10,5 @@
 		:bt-semaphore )
   :components ((:file "package")
                (:file "cl-channel")
+	       (:file "cl-box")
 	       (:file "cl-dispatcher")))
