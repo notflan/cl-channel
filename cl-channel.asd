@@ -6,8 +6,7 @@
   :license  "None"
   :version "0.0.1"
   :serial t
-  :depends-on ( :flan-utils
-		:bt-semaphore )
+  :depends-on ( :bt-semaphore )
   :components ((:file "package")
                (:file "cl-channel")
 	       (:file "cl-box")

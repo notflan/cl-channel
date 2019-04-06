@@ -2,8 +2,6 @@
 
 (in-package :cl-box)
 
-(flan-utils:enable-all-readers)
-
 (defstruct %box
   value
   lock)
@@ -11,7 +9,8 @@
 (defmacro %atomic (box &body re)
   `(bt:with-lock-held ((%box-lock ,box))
 		     ,@re))
-[
+(mapc 'export (list
+
 (defun make-box (&optional value)
   (let ((b (make-%box)))
     (setf (%box-value b) value)
@@ -62,7 +61,7 @@
 	   ,@things)
 	 (<-! ,name)))))
 	
-]
+))
 
 (defun test ()
   (let ((box (make)))

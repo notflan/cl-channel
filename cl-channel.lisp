@@ -2,13 +2,13 @@
 
 (in-package :cl-channel)
 
-(flan-utils:enable-all-readers)
 
 (defstruct %queue
   internal
   mutex)
 
-[
+
+(mapc 'export (list
 (defun make-queue (&optional (from nil))
   (let ((q (make-%queue)))
     (setf (%queue-internal q) from)
@@ -31,7 +31,7 @@
 (defun queue-clear (q)
   (bt:with-lock-held ((%queue-mutex q))
     (setf (%queue-internal q) nil)))
-]
+))
 
 (defstruct %channel
   internal
@@ -49,7 +49,8 @@
 (defun sigall (sem)
   (bt-sem:signal-semaphore sem (bt-sem:semaphore-waiters sem)))
 
-[
+(mapc 'export (list
+
 (defun make-channel (&optional (max 0))
   (let ((c (make-%channel)))
     (setf (%channel-internal c) (make-queue))
@@ -71,7 +72,7 @@
 (defun <- (chan)
   (let ((out nil)
 	(rout nil))
-    (loop while (and (null out) ¬(closed chan)) do
+    (loop while (and (null out) (not (closed chan))) do
 	  (progn
 	    (if (> (poll chan) 0)
 	      (%atomic chan
@@ -83,15 +84,15 @@
     (if (closed chan) (values nil nil)  (values rout t))))
 
 (defun -> (chan item)
-  (loop while (and ¬(closed chan) (> (%channel-max chan) 0) (%atomic chan (>= (queue-poll (%channel-internal chan)) (%channel-max chan))))
+  (loop while (and (not (closed chan)) (> (%channel-max chan) 0) (%atomic chan (>= (queue-poll (%channel-internal chan)) (%channel-max chan))))
 	do (bt-sem:wait-on-semaphore (%channel-rel-send)))
   (let ((lv (%atomic chan
-	   (if ¬(if (or (%channel-closed chan) (and (> (%channel-max chan) 0) (>= (queue-poll (%channel-internal chan)) (%channel-max chan))))
+	   (if (not (if (or (%channel-closed chan) (and (> (%channel-max chan) 0) (>= (queue-poll (%channel-internal chan)) (%channel-max chan))))
 	     nil
 	     (progn
 	       (queue-> (%channel-internal chan) item)
 	       (bt-sem:signal-semaphore (%channel-rel-recv chan) 1)
-	       t))
+	       t)))
 	     (if (%channel-closed chan) nil 'reset)
 	     t))))
     (if (eq lv 'reset)
@@ -110,9 +111,10 @@
 
 (defmacro make ()
   `(make-channel))
-]
 
-(defun test ()
+))
+
+#|(defun test ()
   (let ((chan (make-channel)))
     $(progn
        (loop while ¬(closed chan) do (let ((val (<- chan)))
@@ -122,5 +124,9 @@
 	   (release chan))))
        (print "Thread end")
        (print "."))
+     $(loop while ¬(closed chan) do
+	   (progn
+	     (sleep 2)
+	     (-> chan 'teste)))
     (loop while ¬(closed chan) do (-> chan (write-to-string (read)))))
-  (print "End"))
+  (print "End"))|#

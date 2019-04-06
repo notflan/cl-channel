@@ -2,8 +2,6 @@
 
 (in-package :cl-dispatcher)
 
-(flan-utils:enable-all-readers)
-
 (defstruct %dispatcher
   hooks
   lock)
@@ -12,7 +10,8 @@
   `(bt:with-lock-held ((%dispatcher-lock disp))
      ,@thing))
 
-[
+(mapc 'export (list 
+
 (defun make-dispatcher ()
   (let ((d (make-%dispatcher)))
     (setf (%dispatcher-hooks d ) nil)
@@ -33,7 +32,7 @@
 	   (let ((hooks (assoc name (%dispatcher-hooks disp))))
 	     (if (null hooks)
 	       nil
-	       (mapc #'(lambda (y) $(funcall y x)) (cdr hooks))))))
+	       (mapcar #'(lambda (y) (bt:make-thread (funcall y x))) (cdr hooks))))))
 
 (defun sig-serial (disp name  &optional (x nil))
   (%atomic disp
@@ -41,7 +40,7 @@
 	     (if (null hooks)
 	       nil
 	       (mapc #'(lambda (y) (funcall y x)) (cdr hooks))))))
-]
+))
 
 (defun test ()
   (let ((d (make)))
@@ -51,4 +50,3 @@
     
     (sig-serial d "test" 'uwu)
     (print 'signalled)))
-
