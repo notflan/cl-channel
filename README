@@ -1,4 +1,6 @@
-=== Go-like channels for atomically passing information between threads, and some other stuff. ===
+=== Go-like channels for atomically passing information between threads, and some other async stuff. ===
+
+--- Channels ---
 
 (channel:make-channel) ; make new channel
 (channel:make-channel 2) ; make new channel with max size of 2 (untested)
@@ -8,6 +10,16 @@
 (channel:release chan) ; close channel
 (channel:closed chan) ; is channel closed
 (channel:¬closed chan) ; (not (closed chan))
+
+--- Tools ---
+
+(async-tools:async &body body) ; Run body asyncrounously. Returns promise that can be passed to async-tools:wait() to join thread then return the last value of `body'.
+(async-tools:wait promise) ; Wait on promise, return it's value and T if the thread exited without being killed.
+(async-tools:kill promise) ; Kill this thread
+(async-tools:value promise) ; Return value of this promise, like wait but does not block. returns (values nil nil) if the thread has not exited yet;
+See `async-tools.lisp' for more info.
+
+(async-tools:enable-reader) ; Enable reader macro $(form) for running form as async. Like, $(print 'hi) -> (async (print 'hi))
 
 --- Signalling ---
 
