@@ -48,15 +48,26 @@
   (let ((name (gensym)))
     `(let ((,name ,box))
       (bt:with-lock-held ((box-lock ,name))
-  	(->! ,name (progn ,@things))
+	(flet ((-> (thing) (->! ,name thing))
+	       (<- () (<-! ,name)))
+  	  (->! ,name (progn ,@things)))
 	(<-! ,name)))))
 
 (defmacro <-- (box &body things)
   (let ((name (gensym)))
     `(let ((,name ,box))
        (bt:with-lock-held ((box-lock ,name))
-	 (progn ,@things)
+	 (flet ((-> (thing) (->! ,name thing))
+		(<- () (<-! ,name)))
+	   ,@things)
 	 (<-! ,name)))))
 	
-
 ]
+
+(defun test ()
+  (let ((box (make)))
+    (-> box 'zero)
+    (pprint box)
+    (pprint (<-- box
+	 (pprint (<-))
+	 (-> 'one)))))

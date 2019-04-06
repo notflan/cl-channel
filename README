@@ -1,15 +1,28 @@
 Go-like channels for atomically passing information between threads.
 
-(make-channel) ; make new channel
-(make-channel 2) ; make new channel with max size of 2 (untested)
+(channel:make-channel) ; make new channel
+(channel:make-channel 2) ; make new channel with max size of 2 (untested)
 
-(-> chan item) ; send item to channel
-(<- chan) ; receive from channel (values item is-not-closed)
-(release chan) ; close channel
-(closed chan) ; is channel closed
+(channel:-> chan item) ; send item to channel
+(channel:<- chan) ; receive from channel (values item is-not-closed)
+(channel:release chan) ; close channel
+(channel:closed chan) ; is channel closed
+
+(dispatcher:make-dispatcher) ; make dispatcher
+
+(dispatcher:hook disp name lambda) ; add hook
+(dispatcher:sig name (optional value)) ; signal name in parallel
+(dispatcher:sig-serial name (optional value)) ; signal name in serial
 
 
-(make-dispatcher) ; make dispatcher
-(hook disp name lambda) ; add hook
-(sig name (optional value)) ; signal name in parallel
-(sig-serial name (optional value)) ; signal name in serial
+(box:make &optional value) ; make a box with default value
+
+(box:<- box) ; get value atomically
+(box:-> box value) ; set value atomically
+(box:<-! box) ; get value without lock
+(box:->! box vlaue) ; set value without lock
+(setf (box:@ box) value) ; set value atomically
+
+(box:--> box &body things) ; do (progn ,@things) with lock held then set value to box
+(box:<-- box &body things) ; do (progn ,@things) with lock held. return value of box.
+	; these two macros flet functions (box:<-) and (box:-> thing) to get&set from box while lock is held.
