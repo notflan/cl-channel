@@ -1,5 +1,8 @@
 ;;;; package.lisp
 
+(defpackage #:async-tools
+  (:use #:cl))
+
 (defpackage #:cl-channel
   (:use #:cl)
   (:nicknames :channel))

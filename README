@@ -1,12 +1,15 @@
-Go-like channels for atomically passing information between threads.
+=== Go-like channels for atomically passing information between threads, and some other stuff. ===
 
 (channel:make-channel) ; make new channel
 (channel:make-channel 2) ; make new channel with max size of 2 (untested)
 
 (channel:-> chan item) ; send item to channel
-(channel:<- chan) ; receive from channel (values item is-not-closed)
+(channel:<- chan) ; receive from channel (values item is-not-closed), blocks until there is one
 (channel:release chan) ; close channel
 (channel:closed chan) ; is channel closed
+(channel:¬closed chan) ; (not (closed chan))
+
+--- Signalling ---
 
 (dispatcher:make-dispatcher) ; make dispatcher
 
@@ -14,6 +17,7 @@ Go-like channels for atomically passing information between threads.
 (dispatcher:sig name (optional value)) ; signal name in parallel
 (dispatcher:sig-serial name (optional value)) ; signal name in serial
 
+--- Atomic operations ---
 
 (box:make &optional value) ; make a box with default value
 

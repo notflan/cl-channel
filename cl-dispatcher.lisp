@@ -32,7 +32,7 @@
 	   (let ((hooks (assoc name (%dispatcher-hooks disp))))
 	     (if (null hooks)
 	       nil
-	       (mapcar #'(lambda (y) (bt:make-thread (funcall y x))) (cdr hooks))))))
+	       (mapcar #'(lambda (y) (bt:make-thread (lambda () (funcall y x)))) (cdr hooks))))))
 
 (defun sig-serial (disp name  &optional (x nil))
   (%atomic disp
@@ -40,13 +40,15 @@
 	     (if (null hooks)
 	       nil
 	       (mapc #'(lambda (y) (funcall y x)) (cdr hooks))))))
+
 ))
 
 (defun test ()
-  (let ((d (make)))
+  (let ((d (make-dispatcher)))
     (hook d "test" (lambda (x) (print x)))
     (hook d "test" (lambda (x) (print (cons "!!" x))))
     (hook d "test" (lambda (x) (print "HELLO")))
     
     (sig-serial d "test" 'uwu)
     (print 'signalled)))
+

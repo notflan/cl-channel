@@ -7,6 +7,7 @@
   internal
   mutex)
 
+(async-tools:enable-reader)
 
 (mapc 'export (list
 (defun make-queue (&optional (from nil))
@@ -65,6 +66,9 @@
 (defun closed (chan) (%atomic chan
   (%channel-closed chan)))
 
+(defun ¬closed (chan)
+  (not (closed chan)))
+
 (defun poll (chan)
   (%atomic chan
 	   (queue-poll (%channel-internal chan))))
@@ -114,19 +118,19 @@
 
 ))
 
-#|(defun test ()
+(defun test ()
   (let ((chan (make-channel)))
-    $(progn
-       (loop while ¬(closed chan) do (let ((val (<- chan)))
+     
+       $(progn (loop while (not (closed chan)) do (let ((val (<- chan)))
 	 (pprint val)
 	 (pprint ".")
 	 (when (string-equal val "CLOSE")
 	   (release chan))))
        (print "Thread end")
        (print "."))
-     $(loop while ¬(closed chan) do
+     $(loop while (not (closed chan)) do
 	   (progn
 	     (sleep 2)
 	     (-> chan 'teste)))
-    (loop while ¬(closed chan) do (-> chan (write-to-string (read)))))
-  (print "End"))|#
+    (loop while (not (closed chan)) do (-> chan (write-to-string (read)))))
+  (print "End"))

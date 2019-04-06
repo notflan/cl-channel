@@ -8,6 +8,7 @@
   :serial t
   :depends-on ( :bt-semaphore )
   :components ((:file "package")
+	       (:file "async-tools")
                (:file "cl-channel")
 	       (:file "cl-box")
 	       (:file "cl-dispatcher")))
