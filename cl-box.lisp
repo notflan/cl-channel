@@ -60,7 +60,15 @@
 		(<- () (<-! ,name)))
 	   ,@things)
 	 (<-! ,name)))))
-	
+
+(defmacro with (box &body things)
+  (let ((name (gensym)))
+    `(let ((,name ,box))
+       (bt:with-lock-held ((box-lock ,name))
+	 (flet ((-> (thing) (->! ,name thing))
+		(<- () (<-! ,name)))
+	   ,@things)))))
+
 ))
 
 (defun test ()
